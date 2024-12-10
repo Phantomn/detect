@@ -4,7 +4,6 @@ import json
 import cv2
 import shutil
 import numpy as np
-from ultralytics import YOLO
 
 # 데이터셋 경로 설정
 training_label_dir = "./1.Training/Label"
@@ -111,6 +110,40 @@ def process_dataset_with_polygon(label_root, origin_root, images_output_dir, lab
                 else:
                     print(f"Origin image not found: {origin_image_path}")
 
+def validate_and_fix_yolo_labels(labels_dir):
+    for root, _, files in os.walk(labels_dir):
+        for file in files:
+            if file.endswith('.txt'):
+                label_path = os.path.join(root, file)
+                fixed_lines = []
+                modified = False
+                with open(label_path, 'r') as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        parts = line.strip().split()
+                        if len(parts) < 5:
+                            print(f"Invalid format in {label_path}: {line.strip()}")
+                            continue
+                        class_id, x_center, y_center, width, height = map(float, parts[:5])
+
+                        # 클리핑: 1.0을 초과하는 크기 제한
+                        if width > 1.0:
+                            print(f"Invalid box width at {label_path}: {width}, clipping it to 1.0")
+                            width = min(width, 1.0)  # 1.0을 넘지 않도록 제한
+                            modified = True
+                        if height > 1.0:
+                            print(f"Invalid box height at {label_path}: {height}, clipping it to 1.0")
+                            height = min(height, 1.0)  # 1.0을 넘지 않도록 제한
+                            modified = True
+
+                        fixed_line = f"{int(class_id)} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n"
+                        fixed_lines.append(fixed_line)
+
+                if modified:
+                    with open(label_path, 'w') as f:
+                        f.writelines(fixed_lines)
+                    print(f"Fixed errors in {label_path}")
+
 # 훈련 데이터 처리
 print("Processing Training Data...")
 process_dataset_with_polygon(training_label_dir, training_origin_dir, 
@@ -124,3 +157,8 @@ process_dataset_with_polygon(validation_label_dir, validation_origin_dir,
                              os.path.join(processed_dir, "val/images"), 
                              os.path.join(processed_dir, "val/labels"), 
                              class_mapping)
+
+# YOLO 라벨 데이터 검증 및 수정
+print("Validating and fixing YOLO labels...")
+validate_and_fix_yolo_labels(os.path.join(processed_dir, "train/labels"))
+validate_and_fix_yolo_labels(os.path.join(processed_dir, "val/labels"))
