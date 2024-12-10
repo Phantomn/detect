@@ -1,0 +1,24 @@
+names:
+- 체크
+- 수식
+- 동그라미
+- 화살표
+- 밑줄
+- 취소선
+- 수식/텍스트
+- 텍스트
+- 2차원 그래프
+- 기타
+- 수직선(범위)
+- 표
+- 스마일
+- 수직선
+- 벤다이어그램
+- 평면도형
+- 분자구조
+- 풀이낙서
+- 별표
+nc: 19
+task: segment
+train: ./processed_data/train/images
+val: ./processed_data/val/images

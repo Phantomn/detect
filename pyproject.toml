@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "detect"
+version = "0.1.0"
+description = ""
+authors = ["phantomn <tmdvyr123@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+ultralytics = "^8.3.48"
+opencv-python-headless = "^4.10.0.84"
+pyyaml = "^6.0.2"
+torch = { version = "^2.5.0+cu124", source = "pytorch" }
+torchaudio = { version = "^2.5.0+cu124", source = "pytorch" }
+torchvision = { version = "^0.20.0+cu124", source = "pytorch" }
+
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu124"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
